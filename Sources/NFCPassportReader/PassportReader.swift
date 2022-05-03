@@ -24,6 +24,7 @@ public class PassportReader : NSObject {
     private var skipSecureElements = true
     private var skipCA = false
     private var skipPACE = false
+    private var isDrivers = false
 
     private var tagReader : TagReader?
     private var bacHandler : BACHandler?
@@ -60,11 +61,12 @@ public class PassportReader : NSObject {
         dataAmountToReadOverride = amount
     }
         
-    public func readPassport( mrzKey : String, tags: [DataGroupId] = [], skipSecureElements :Bool = true, skipCA : Bool = false, skipPACE: Bool = false, customDisplayMessage: ((NFCViewDisplayMessage) -> String?)? = nil, completed: @escaping (NFCPassportModel?, NFCPassportReaderError?)->()) {
+    public func readPassport( mrzKey : String, tags: [DataGroupId] = [], skipSecureElements :Bool = true, skipCA : Bool = false, skipPACE: Bool = false, isDrivers: Bool = false, customDisplayMessage: ((NFCViewDisplayMessage) -> String?)? = nil, completed: @escaping (NFCPassportModel?, NFCPassportReaderError?)->()) {
         self.passport = NFCPassportModel()
         self.mrzKey = mrzKey
         self.skipCA = skipCA
         self.skipPACE = skipPACE
+        self.isDrivers = isDrivers
         
         self.dataGroupsToRead.removeAll()
         self.dataGroupsToRead.append( contentsOf:tags)
@@ -175,7 +177,10 @@ extension PassportReader : NFCTagReaderSessionDelegate {
             Log.debug( "tagReaderSession:connected to tag - starting authentication" )
             self.updateReaderSessionMessage( alertMessage: NFCViewDisplayMessage.authenticatingWithPassport(0) )
 
-            self.tagReader = TagReader(tag:passportTag)
+            let tagReader = TagReader(tag:passportTag)
+            tagReader.isDrivers = isDrivers
+            
+            self.tagReader = tagReader
             
             if let newAmount = self.dataAmountToReadOverride {
                 self.tagReader?.overrideDataAmountToRead(newAmount: newAmount)
