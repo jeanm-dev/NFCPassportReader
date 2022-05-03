@@ -16,6 +16,7 @@ public class TagReader {
     var tag : NFCISO7816Tag
     var secureMessaging : SecureMessaging?
     var maxDataLengthToRead : Int = 0xFF  // Increased to 255 bytes but length may not be supported by all passports.
+    var isDrivers = false
 
     var progress : ((Int)->())?
 
@@ -35,11 +36,12 @@ public class TagReader {
 
 
     func readDataGroup( dataGroup: DataGroupId, completed: @escaping ([UInt8]?, NFCPassportReaderError?)->() )  {
-        guard let tag = dataGroup.getFileIDTag() else {
+        guard let tagId = dataGroup.getFileIDTag() else {
             completed(nil, NFCPassportReaderError.UnsupportedDataGroup)
             return
         }
         
+        let tag = [isDrivers ? 0x00 : 0x01, tagId]
         selectFileAndRead(tag: tag, completed:completed )
     }
     
