@@ -78,26 +78,26 @@ public enum DataGroupId : Int, CaseIterable {
         }
     }
     
-    func getFileIDTag() -> [UInt8]? {
+    func getFileIDTag() -> UInt8? {
         switch( self ) {
-            case .COM:  return [0x01,0x1E]
-            case .DG1:  return [0x01,0x01]
-            case .DG2:  return [0x01,0x02]
-            case .DG3:  return [0x01,0x03]
-            case .DG4:  return [0x01,0x04]
-            case .DG5:  return [0x01,0x05]
-            case .DG6:  return [0x01,0x06]
-            case .DG7:  return [0x01,0x07]
-            case .DG8:  return [0x01,0x08]
-            case .DG9:  return [0x01,0x09]
-            case .DG10:  return [0x01,0x0A]
-            case .DG11:  return [0x01,0x0B]
-            case .DG12:  return [0x01,0x0C]
-            case .DG13:  return [0x01,0x0D]
-            case .DG14:  return [0x01,0x0E]
-            case .DG15:  return [0x01,0x0F]
-            case .DG16:  return [0x01,0x10]
-            case .SOD:  return [0x01,0x1D]
+            case .COM:  return 0x1E
+            case .DG1:  return 0x01
+            case .DG2:  return 0x02
+            case .DG3:  return 0x03
+            case .DG4:  return 0x04
+            case .DG5:  return 0x05
+            case .DG6:  return 0x06
+            case .DG7:  return 0x07
+            case .DG8:  return 0x08
+            case .DG9:  return 0x09
+            case .DG10:  return 0x0A
+            case .DG11:  return 0x0B
+            case .DG12:  return 0x0C
+            case .DG13:  return 0x0D
+            case .DG14:  return 0x0E
+            case .DG15:  return 0x0F
+            case .DG16:  return 0x10
+            case .SOD:  return 0x1D
             case .Unknown:  return nil
         }
     }
