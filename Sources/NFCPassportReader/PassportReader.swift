@@ -27,6 +27,7 @@ public class PassportReader : NSObject {
     private var skipSecureElements = true
     private var skipCA = false
     private var skipPACE = false
+    private var isDrivers = false
 
     private var bacHandler : BACHandler?
     private var caHandler : ChipAuthenticationHandler?
@@ -62,12 +63,12 @@ public class PassportReader : NSObject {
         dataAmountToReadOverride = amount
     }
     
-    public func readPassport( mrzKey : String, tags : [DataGroupId] = [], skipSecureElements : Bool = true, skipCA : Bool = false, skipPACE : Bool = false, customDisplayMessage : ((NFCViewDisplayMessage) -> String?)? = nil) async throws -> NFCPassportModel {
-        
+    public func readPassport( mrzKey : String, tags : [DataGroupId] = [], skipSecureElements : Bool = true, skipCA : Bool = false, skipPACE : Bool = false, isDrivers: Bool = false, customDisplayMessage : ((NFCViewDisplayMessage) -> String?)? = nil) async throws -> NFCPassportModel {
         self.passport = NFCPassportModel()
         self.mrzKey = mrzKey
         self.skipCA = skipCA
         self.skipPACE = skipPACE
+        self.isDrivers = isDrivers
         
         self.dataGroupsToRead.removeAll()
         self.dataGroupsToRead.append( contentsOf:tags)
