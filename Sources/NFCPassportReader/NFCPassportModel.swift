@@ -46,7 +46,14 @@ public class NFCPassportModel {
         return name.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }()
     
-    public private(set) lazy var passportMRZ : String = { return passportDataElements?["5F1F"] ?? "NOT FOUND" }()
+    public private(set) lazy var passportMRZ : String? = { return passportDataElements?["5F1F"] }()
+    
+    public private(set) lazy var isDrivers: Bool = {
+        guard let dataGroup1 = dataGroupsRead[.DG1] as? DataGroup1 else {
+            fatalError("`DataGroup1` was not read and therfore this cannot be determined")
+        }
+        return dataGroup1.isDrivers
+    }()
     
     // Extract fields from DG11 if present
     public private(set) lazy var placeOfBirth : String? = {
