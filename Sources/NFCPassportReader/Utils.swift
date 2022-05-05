@@ -108,6 +108,10 @@ public func intToBin(_ data : Int, pad : Int = 2) -> [UInt8] {
     }
 }
 
+public func intToHex(_ data: Int) -> String {
+    return String(format:"%02x", data).uppercased()
+}
+
 /// 'AABB' --> \xaa\xbb'"""
 public func hexRepToBin(_ val : String) -> [UInt8] {
     var output : [UInt8] = []
