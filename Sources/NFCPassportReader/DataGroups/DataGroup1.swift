@@ -23,6 +23,7 @@ public enum DocTypeEnum: String {
 public class DataGroup1 : DataGroup {
     
     public private(set) var elements : [String:String] = [:]
+    public private(set) var isDrivers: Bool = false
     
     required init( _ data : [UInt8] ) throws {
         try super.init(data)
@@ -31,9 +32,18 @@ public class DataGroup1 : DataGroup {
     
     override func parse(_ data: [UInt8]) throws {
         let tag = try getNextTag()
-        if tag != 0x5F1F {
+        
+        if tag == 0x5F1F {
+            try parseMrzElements()
+        } else if tag == 0x5F01 {
+            isDrivers = true
+            return try parseDriversTag(for: tag)
+        } else {
             throw NFCPassportReaderError.InvalidResponse
         }
+    }
+    
+    private func parseMrzElements() throws {
         let body = try getNextValue()
         let docType = getMRZType(length:body.count)
         
@@ -110,4 +120,52 @@ public class DataGroup1 : DataGroup {
         return .OTHER
     }
     
+    private func parseDriversTag(for nextTag: Int) throws {
+        let body = try getNextValue()
+        let currentElement = intToHex(nextTag)
+        Log.info("DG1 - Data Elements - \(currentElement)")
+        
+        let dateTags = [0x5F06, 0x5F0A, 0x5F0B]
+        elements[currentElement] = dateTags.contains { $0 == nextTag } ? parseDate(body) : parseString(body)
+        
+        try handleNextTag()
+    }
+    
+    private func handleNextTag() throws {
+        let nextTag = try getNextTag()
+        
+        guard nextTag != 0x5F02 else {
+            return try parseGender()
+        }
+        
+        guard nextTag != 0x7F63 else {
+            let length = try getNextLength()
+            let body = [UInt8](data[pos..<pos+length])
+            return try parseLicenseCategories(body)
+        }
+        
+        guard nextTag != 0 else { return }
+        try parseDriversTag(for: nextTag)
+    }
+    
+    // Gender TagId - 0x5F02
+    private func parseGender() throws {
+        elements["5F02"] = parseString([data[pos]])
+        pos += 1 // Move onto next tagId
+        try handleNextTag()
+    }
+    
+    // License Categories TagId - 0x7F63
+    private func parseLicenseCategories(_ tagData: [UInt8]) throws {
+        // TODO: parse categories
+        Log.debug("DG1 - License Categories - 7F63 - \(binToHexRep(tagData))")
+    }
+    
+    private func parseString(_ tagData: [UInt8]) -> String? {
+        return String(bytes: tagData, encoding: .windowsCP1250)
+    }
+    
+    private func parseDate(_ tagData: [UInt8]) -> String {
+        return binToHexRep(tagData)
+    }
 }
