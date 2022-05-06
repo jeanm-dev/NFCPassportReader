@@ -22,6 +22,24 @@ public enum DocTypeEnum: String {
 @available(iOS 13, macOS 10.15, *)
 public class DataGroup1 : DataGroup {
     
+    private enum DriverLicense: String {
+        case gender = "5F02"
+        case issuingMemberState = "5F03"
+        case lastName = "5F04"
+        case firstName = "5F05"
+        case dateOfBirth = "5F06"
+        case placeOfBirth = "5F07"
+        case nationality = "5F08"
+        case dateOfIssue = "5F0A"
+        case dateOfExpiry = "5F0B"
+        case issuingAuthority = "5F0C"
+        case documentNumber = "5F0E"
+        
+        var intHex: Int {
+            Int(rawValue, radix:16)!
+        }
+    }
+    
     private enum Passport {
         static let documentType = "5F03"
         static let personalNumber = "53"
@@ -178,7 +196,7 @@ public class DataGroup1 : DataGroup {
         let currentElement = intToHex(nextTag)
         Log.info("DG1 - Data Elements - \(currentElement)")
         
-        let dateTags = [0x5F06, 0x5F0A, 0x5F0B]
+        let dateTags = [DriverLicense.dateOfBirth, DriverLicense.dateOfIssue, DriverLicense.dateOfExpiry].map { $0.intHex }
         elements[currentElement] = dateTags.contains { $0 == nextTag } ? parseDate(body) : parseString(body)
         
         try handleNextTag()
