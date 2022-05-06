@@ -60,22 +60,65 @@ public class DataGroup1 : DataGroup {
     }
     
     // MARK: - Document Data - Elements
-    public private(set) lazy var documentType: String = { return String(elements[Passport.documentType]?.first ?? "?") }()
-    public private(set) lazy var documentSubType: String = { return String(elements[Passport.documentType]?.last ?? "?")}()
-    public private(set) lazy var personalNumber: String = { return (elements[Passport.personalNumber] ?? "?").replacingOccurrences(of: "<", with: "" ) }()
-    public private(set) lazy var documentNumber: String = { return (elements[Passport.documentNumber] ?? "?").replacingOccurrences(of: "<", with: "" ) }()
-    public private(set) lazy var issuingAuthority: String = { return elements[Passport.issuingAuthority] ?? "?" }()
-    public private(set) lazy var documentExpiryDate: String = { return elements[Passport.documentExpiryDate] ?? "?" }()
-    public private(set) lazy var dateOfBirth: String = { return elements[Passport.dateOfBirth] ?? "?" }()
-    public private(set) lazy var gender: String = { return elements[Passport.gender] ?? "?" }()
-    public private(set) lazy var nationality: String = { return elements[Passport.nationality] ?? "?" }()
+    public private(set) lazy var documentType: String = {
+        return isPassport ? String(elements[Passport.documentType]?.first ?? "?") : "D"
+    }()
+    public private(set) lazy var documentSubType: String = {
+        return isPassport ? String(elements[Passport.documentType]?.last ?? "?") : "1"
+    }()
+    public private(set) lazy var personalNumber: String = {
+        return isDrivers ? (elements[Passport.personalNumber] ?? "?").replacingOccurrences(of: "<", with: "" ) : "?"
+    }()
+    public private(set) lazy var documentNumber: String = {
+        guard isPassport else {
+            return elements[DriverLicense.documentNumber.rawValue] ?? "?"
+        }
+        return (elements[Passport.documentNumber] ?? "?").replacingOccurrences(of: "<", with: "")
+    }()
+    public private(set) lazy var issuingAuthority: String = {
+        guard isPassport else {
+            return elements[DriverLicense.issuingMemberState.rawValue] ?? "?"
+        }
+        return elements[Passport.issuingAuthority] ?? "?"
+    }()
+    public private(set) lazy var documentExpiryDate: String = {
+        guard isPassport else {
+            return elements[DriverLicense.dateOfExpiry.rawValue] ?? "?"
+        }
+        return elements[Passport.documentExpiryDate] ?? "?"
+    }()
+    public private(set) lazy var dateOfBirth: String = {
+        guard isPassport else {
+            return elements[DriverLicense.dateOfBirth.rawValue] ?? "?"
+        }
+        return elements[Passport.dateOfBirth] ?? "?"
+    }()
+    public private(set) lazy var gender: String = {
+        guard isPassport else {
+            return elements[DriverLicense.gender.rawValue] ?? "?"
+        }
+        return elements[Passport.gender] ?? "?"
+    }()
+    public private(set) lazy var nationality: String = {
+        guard isPassport else {
+            return elements[DriverLicense.nationality.rawValue] ?? "?"
+        }
+        return elements[Passport.nationality] ?? "?"
+    }()
     
     public private(set) lazy var lastName: String = {
+        guard isPassport else {
+            return elements[DriverLicense.lastName.rawValue] ?? "?"
+        }
         let names = (elements[Passport.lastName] ?? "?").components(separatedBy: "<<")
         return names[0].replacingOccurrences(of: "<", with: " " )
     }()
     
     public private(set) lazy var firstName: String = {
+        guard isPassport else {
+            return elements[DriverLicense.firstName.rawValue] ?? "?"
+        }
+        
         let names = (elements[Passport.firstName] ?? "?").components(separatedBy: "<<")
         var name = ""
         for i in 1 ..< names.count {
@@ -89,6 +132,7 @@ public class DataGroup1 : DataGroup {
     
     private var elements: [String:String] = [:]
     public private(set) var isDrivers: Bool = false
+    private var isPassport: Bool { return !isDrivers }
     
     required init(_ data: [UInt8]) throws {
         try super.init(data)
