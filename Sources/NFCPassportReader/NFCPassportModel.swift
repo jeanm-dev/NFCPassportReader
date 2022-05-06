@@ -22,31 +22,18 @@ public enum PassportAuthenticationStatus {
 @available(iOS 13, macOS 10.15, *)
 public class NFCPassportModel {
     
-    public private(set) lazy var documentType : String = { return String( passportDataElements?["5F03"]?.first ?? "?" ) }()
-    public private(set) lazy var documentSubType : String = { return String( passportDataElements?["5F03"]?.last ?? "?" ) }()
-    public private(set) lazy var documentNumber : String = { return (passportDataElements?["5A"] ?? "?").replacingOccurrences(of: "<", with: "" ) }()
-    public private(set) lazy var issuingAuthority : String = { return passportDataElements?["5F28"] ?? "?" }()
-    public private(set) lazy var documentExpiryDate : String = { return passportDataElements?["59"] ?? "?" }()
-    public private(set) lazy var dateOfBirth : String = { return passportDataElements?["5F57"] ?? "?" }()
-    public private(set) lazy var gender : String = { return passportDataElements?["5F35"] ?? "?" }()
-    public private(set) lazy var nationality : String = { return passportDataElements?["5F2C"] ?? "?" }()
-
-    public private(set) lazy var lastName : String = {
-        let names = (passportDataElements?["5B"] ?? "?").components(separatedBy: "<<")
-        return names[0].replacingOccurrences(of: "<", with: " " )
-    }()
+    public private(set) lazy var documentType: String = { return passportDataElements.documentType }()
+    public private(set) lazy var documentSubType: String = { return passportDataElements.documentSubType }()
+    public private(set) lazy var documentNumber: String = { return passportDataElements.documentNumber }()
+    public private(set) lazy var issuingAuthority: String = { return passportDataElements.issuingAuthority }()
+    public private(set) lazy var documentExpiryDate: String = { return passportDataElements.documentExpiryDate }()
+    public private(set) lazy var dateOfBirth: String = { return passportDataElements.dateOfBirth }()
+    public private(set) lazy var gender: String = { return passportDataElements.gender }()
+    public private(set) lazy var nationality: String = { return passportDataElements.nationality }()
+    public private(set) lazy var lastName: String = { passportDataElements.lastName }()
+    public private(set) lazy var firstName: String = { passportDataElements.firstName }()
     
-    public private(set) lazy var firstName : String = {
-        let names = (passportDataElements?["5B"] ?? "?").components(separatedBy: "<<")
-        var name = ""
-        for i in 1 ..< names.count {
-            let fn = names[i].replacingOccurrences(of: "<", with: " " ).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-            name += fn + " "
-        }
-        return name.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-    }()
-    
-    public private(set) lazy var passportMRZ : String? = { return passportDataElements?["5F1F"] }()
+    public private(set) lazy var passportMRZ: String? = { return passportDataElements.passportMRZ }()
     
     public private(set) lazy var isDrivers: Bool = {
         guard let dataGroup1 = dataGroupsRead[.DG1] as? DataGroup1 else {
@@ -81,7 +68,7 @@ public class NFCPassportModel {
         if let dg11 = dataGroupsRead[.DG11] as? DataGroup11,
            let personalNumber = dg11.personalNumber { return personalNumber }
         
-        return (passportDataElements?["53"] ?? "?").replacingOccurrences(of: "<", with: "" )
+        return passportDataElements.personalNumber
     }()
 
     public private(set) lazy var documentSigningCertificate : X509Wrapper? = {
@@ -173,10 +160,11 @@ public class NFCPassportModel {
 
     private var certificateSigningGroups : [CertificateType:X509Wrapper] = [:]
 
-    private var passportDataElements : [String:String]? {
-        guard let dg1 = dataGroupsRead[.DG1] as? DataGroup1 else { return nil }
-        
-        return dg1.elements
+    private var passportDataElements: DataGroup1 {
+        guard let dg1 = dataGroupsRead[.DG1] as? DataGroup1 else {
+            fatalError("`DataGroup1` was not read")
+        }
+        return dg1
     }
         
     
