@@ -22,13 +22,43 @@ public enum DocTypeEnum: String {
 @available(iOS 13, macOS 10.15, *)
 public class DataGroup1 : DataGroup {
     
-    public private(set) var elements : [String:String] = [:]
+    // MARK: - Document Data - Elements
+    public private(set) lazy var documentType: String = { return String(elements["5F03"]?.first ?? "?") }()
+    public private(set) lazy var documentSubType: String = { return String(elements["5F03"]?.last ?? "?")}()
+    public private(set) lazy var personalNumber: String = { return (elements["53"] ?? "?").replacingOccurrences(of: "<", with: "" ) }()
+    public private(set) lazy var documentNumber: String = { return (elements["5A"] ?? "?").replacingOccurrences(of: "<", with: "" ) }()
+    public private(set) lazy var issuingAuthority: String = { return elements["5F28"] ?? "?" }()
+    public private(set) lazy var documentExpiryDate: String = { return elements["59"] ?? "?" }()
+    public private(set) lazy var dateOfBirth: String = { return elements["5F57"] ?? "?" }()
+    public private(set) lazy var gender: String = { return elements["5F35"] ?? "?" }()
+    public private(set) lazy var nationality: String = { return elements["5F2C"] ?? "?" }()
+    
+    public private(set) lazy var lastName: String = {
+        let names = (elements["5B"] ?? "?").components(separatedBy: "<<")
+        return names[0].replacingOccurrences(of: "<", with: " " )
+    }()
+    
+    public private(set) lazy var firstName: String = {
+        let names = (elements["5B"] ?? "?").components(separatedBy: "<<")
+        var name = ""
+        for i in 1 ..< names.count {
+            let fn = names[i].replacingOccurrences(of: "<", with: " " ).trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            name += fn + " "
+        }
+        return name.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+    }()
+    
+    public private(set) lazy var passportMRZ: String? = { return elements["5F1F"] }()
+    
+    private var elements: [String:String] = [:]
     public private(set) var isDrivers: Bool = false
     
-    required init( _ data : [UInt8] ) throws {
+    required init(_ data : [UInt8]) throws {
         try super.init(data)
         datagroupType = .DG1
     }
+    
+    // MARK: - Parsing
     
     override func parse(_ data: [UInt8]) throws {
         let tag = try getNextTag()
@@ -42,6 +72,8 @@ public class DataGroup1 : DataGroup {
             throw NFCPassportReaderError.InvalidResponse
         }
     }
+    
+    // MARK: - Parsing Passport Elements
     
     private func parseMrzElements() throws {
         let body = try getNextValue()
@@ -120,6 +152,8 @@ public class DataGroup1 : DataGroup {
         return .OTHER
     }
     
+    
+    // MARK: - Parsing Drivers License (EU DL)
     private func parseDriversTag(for nextTag: Int) throws {
         let body = try getNextValue()
         let currentElement = intToHex(nextTag)
