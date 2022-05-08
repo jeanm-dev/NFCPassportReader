@@ -93,6 +93,12 @@ public class DataGroup1 : DataGroup {
         }
         return elements[Passport.dateOfBirth] ?? "?"
     }()
+    public private(set) lazy var dateOfIssue: String = {
+        guard isDrivers else {
+            return "?"
+        }
+        return elements[DriverLicense.dateOfIssue.rawValue] ?? "?"
+    }()
     public private(set) lazy var gender: String = {
         guard isPassport else {
             return elements[DriverLicense.gender.rawValue] ?? "?"
