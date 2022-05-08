@@ -135,6 +135,12 @@ public class NFCPassportModel {
         
         return dg2.getImage()
     }
+    
+    public var driversImage: UIImage? {
+        guard let dg6 = dataGroupsRead[.DG6] as? DataGroup2 else { return nil }
+        
+        return dg6.getImage()
+    }
 
     public var signatureImage : UIImage? {
         guard let dg7 = dataGroupsRead[.DG7] as? DataGroup7 else { return nil }
