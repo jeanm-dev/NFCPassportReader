@@ -51,6 +51,9 @@ public class NFCPassportModel {
     }()
     
     public private(set) lazy var placeOfBirth : String? = {
+        guard !passportDataElements.isDrivers else {
+            return passportDataElements.placeOfBirth
+        }
         guard let dg11 = dataGroupsRead[.DG11] as? DataGroup11,
               let placeOfBirth = dg11.placeOfBirth else { return nil }
         return placeOfBirth
