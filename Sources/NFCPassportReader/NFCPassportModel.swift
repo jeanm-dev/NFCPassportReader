@@ -29,6 +29,7 @@ public class NFCPassportModel {
     public private(set) lazy var issuingAuthority: String = { return passportDataElements.issuingAuthority }()
     public private(set) lazy var documentExpiryDate: String = { return passportDataElements.documentExpiryDate }()
     public private(set) lazy var dateOfBirth: String = { return passportDataElements.dateOfBirth }()
+    public private(set) lazy var dateOfIssue: String = { return passportDataElements.dateOfIssue }()
     public private(set) lazy var gender: String = { return passportDataElements.gender }()
     public private(set) lazy var nationality: String = { return passportDataElements.nationality }()
     public private(set) lazy var lastName: String = { passportDataElements.lastName }()
